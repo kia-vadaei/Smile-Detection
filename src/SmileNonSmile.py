@@ -4,7 +4,6 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
 import torch.nn as nn
-import torch.nn.functional as F
 from PIL import Image
 
 
@@ -13,7 +12,7 @@ class SmileNonSmileDataset(Dataset):
     
         self.data_dir = data_dir
         self.transform = transforms.Compose([
-            # transforms.Resize((128, 128)),  
+            transforms.Resize((128, 128)),  
             transforms.Grayscale(num_output_channels=1),  
             transforms.ToTensor(),  
             # transforms.Normalize(mean=[0.5], std=[0.5])
@@ -53,25 +52,23 @@ class SmileDetectionCNN(nn.Module):
         
         self.conv2 = nn.Conv2d(in_channels=20, out_channels=50, kernel_size=3, stride=1, padding=0)
         
-        self.fc1 = nn.Linear(50 * 7 * 7, 500)  # 50 channels, 7x7 spatial size after pooling
+        self.pool = nn.MaxPool2d(2, 2)
+
+        self.fc1 = nn.Linear(50 * 30 * 30, 500)  # 50 channels, 30x30 spatial size after pooling
         
         self.fc2 = nn.Linear(500, 2)  # 2 classes for classification
+        
+        self.relu = nn.ReLU()
+        
 
     def forward(self, x):
-        x = F.relu(self.conv1(x))
-        
-        x = F.max_pool2d(x, 2, 2)
-        
-        x = F.relu(self.conv2(x))
-        
-        x = F.max_pool2d(x, 2, 2)
-        
+        x = self.relu(self.conv1(x))
+        x = self.pool(x)
+        x = self.relu(self.conv2(x))
+        x = self.pool(x)
         x = torch.flatten(x, 1)  
-        
-        x = F.relu(self.fc1(x))
-        
+        x = self.relu(self.fc1(x))
         x = self.fc2(x)
-        
         return x
 
 
