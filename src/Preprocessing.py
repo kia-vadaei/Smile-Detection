@@ -17,9 +17,9 @@ class Preprocessing:
         self.output_smile = output_smile
         self.output_non_smile = output_non_smile
         self.input_main_path = input_main_path
+        self.detector = MTCNN()
     
     def run_on_dataset(self, constant_size = (128, 128)):
-        detector = MTCNN()
         input_folders = [os.path.join(self.input_main_path, 'smile'),
                             os.path.join(self.input_main_path, 'non_smile')]
         for indx, input_folder in enumerate(input_folders):
@@ -38,7 +38,7 @@ class Preprocessing:
                     image_path = os.path.join(input_folder, filename)
                     image = cv2.imread(image_path)
 
-                    results = detector.detect_faces(image)
+                    results = self.detector.detect_faces(image)
 
                     for i, result in enumerate(results):
                         x, y, width, height = result['box']
@@ -58,3 +58,19 @@ class Preprocessing:
                         cv2.imwrite(os.path.join(output_folder, cropped_face_filename),
                                     resized_gray_face)
                         
+    def run_on_image(self, image_path, constant_size = (128, 128)):
+
+        image = cv2.imread(image_path)
+        results = self.detector.detect_faces(image)
+
+        for i, result in enumerate(results):
+            x, y, width, height = result['box']
+            side_length = max(width, height)
+
+            x = x + max((width - side_length) // 2, 0)
+            y = y + max((height - side_length) // 2, 0)
+
+            cropped = image[y:min(y + side_length, image.shape[0]), x:min(x + side_length, image.shape[1])]
+            cropped_gray = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
+            resized_gray_face = cv2.resize(cropped_gray, constant_size)
+            return resized_gray_face
