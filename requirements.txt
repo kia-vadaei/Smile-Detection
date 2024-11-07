@@ -2,3 +2,6 @@ opencv-python
 matplotlib
 tqdm
 mtcnn
+torch
+torchvision
+Pillow
