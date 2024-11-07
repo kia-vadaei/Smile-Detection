@@ -2,7 +2,7 @@ import os
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
-import torch
+
 import torch.nn as nn
 import torch.nn.functional as F
 from PIL import Image
@@ -14,7 +14,7 @@ class SmileNonSmileDataset(Dataset):
         self.data_dir = data_dir
         self.transform = transforms.Compose([
             # transforms.Resize((128, 128)),  
-            # transforms.Grayscale(num_output_channels=1),  
+            transforms.Grayscale(num_output_channels=1),  
             transforms.ToTensor(),  
             # transforms.Normalize(mean=[0.5], std=[0.5])
             ])
