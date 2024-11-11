@@ -55,11 +55,11 @@ class SmileDetectionCNN(nn.Module):
         self.pool = nn.MaxPool2d(2, 2)
 
         self.fc1 = nn.Linear(50 * 30 * 30, 500)  # 50 channels, 30x30 spatial size after pooling
-        
+                
         self.fc2 = nn.Linear(500, 2)  # 2 classes for classification
         
         self.relu = nn.ReLU()
-        
+        self.dropout = nn.Dropout(0.2)
 
     def forward(self, x):
         x = self.relu(self.conv1(x))
@@ -68,6 +68,7 @@ class SmileDetectionCNN(nn.Module):
         x = self.pool(x)
         x = torch.flatten(x, 1)  
         x = self.relu(self.fc1(x))
+        x = self.dropout(x)
         x = self.fc2(x)
         return x
 
