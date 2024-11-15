@@ -1,16 +1,17 @@
 
 import sys
 import torch
-from smileNonSmile import SmileDetectionCNN
+from smileNonSmile import SmileDetectionCNN, SmileDetectionResNet
 from preprocessing import Preprocessing
 from mtcnn import MTCNN 
 import torchvision.transforms as transforms
 from PIL import Image
 import cv2
+import time
 
 
 def load_model():
-    model = SmileDetectionCNN()
+    model = SmileDetectionResNet()
     model.load_state_dict(torch.load('./model/model.pth',
                                      map_location=torch.device('cuda' if torch.cuda.is_available()
                                                                else 'cpu')))
@@ -67,8 +68,12 @@ def run_cam():
             label = 'None'
 
 
-        cv2.putText(frame, label, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+        # cv2.putText(frame, label, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
 
+        text_y = int(50 + 10 * abs(time.time() % 1 - 0.5) * 4)  # Simulate bounce
+        cv2.putText(frame, label, (50, text_y), 
+            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+        
         cv2.imshow("Camera Feed", frame)
 
         print(f"Predicted label: {label}")
